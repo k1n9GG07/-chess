@@ -1,4 +1,5 @@
 import Board from './Board.js';
+import RandomBot from './bots/RandomBot.js';
 
 /**
  * Принцип SOLID: Single Responsibility Principle
@@ -11,6 +12,9 @@ export default class Game {
         this.selectedCell = null;
         this.possibleMoves = [];
         this.moveHistory = [];
+        this.gameMode = 'pve'; // 'pvp' или 'pve'
+        this.bot = new RandomBot('black');
+        this.isBotThinking = false;
         this.initUI();
     }
 
@@ -22,9 +26,21 @@ export default class Game {
         this.statusElement = document.getElementById('current-player');
         this.historyElement = document.getElementById('move-history');
         this.resetButton = document.getElementById('reset-button');
+        this.modeSelect = document.getElementById('game-mode');
 
         this.resetButton.addEventListener('click', () => this.resetGame());
+        this.modeSelect.addEventListener('change', (e) => {
+            this.gameMode = e.target.value;
+            this.resetGame();
+        });
+        
         this.renderBoard();
+        this.updateHistoryUI();
+        
+        // Запускаем бота, если сейчас его ход
+        if (this.gameMode === 'pve' && this.currentPlayer === this.bot.color) {
+            this.makeBotMove();
+        }
     }
 
     /**
@@ -76,6 +92,8 @@ export default class Game {
      * Обработка клика по клетке
      */
     handleCellClick(row, col) {
+        if (this.isBotThinking) return; // Запрещаем ходить, пока бот думает
+
         const piece = this.board.getPiece(row, col);
 
         // Если уже выбрана клетка и кликнули на возможный ход
@@ -143,7 +161,7 @@ export default class Game {
     /**
      * Выполнение хода
      */
-    executeMove(startRow, startCol, targetRow, targetCol) {
+    async executeMove(startRow, startCol, targetRow, targetCol) {
         const piece = this.board.getPiece(startRow, startCol);
         const capturedPiece = this.board.movePiece(startRow, startCol, targetRow, targetCol);
         
@@ -163,8 +181,35 @@ export default class Game {
                 alert(`Пат! Ничья.`);
             }
             this.resetGame();
+            return;
         } else if (this.board.isKingInCheck(this.currentPlayer)) {
-            alert(`Шах ${this.currentPlayer === 'white' ? 'Белым' : 'Черным'}!`);
+            // alert(`Шах ${this.currentPlayer === 'white' ? 'Белым' : 'Черным'}!`);
+            // Убрали alert, чтобы не мешать боту
+        }
+
+        // Если сейчас ход бота
+        if (this.gameMode === 'pve' && this.currentPlayer === this.bot.color) {
+            this.makeBotMove();
+        }
+    }
+
+    /**
+     * Логика хода бота
+     */
+    async makeBotMove() {
+        this.isBotThinking = true;
+        this.updateStatus();
+
+        try {
+            const move = await this.bot.getNextMove(this.board, this.getSafeMoves.bind(this));
+            if (move) {
+                await this.executeMove(move.start.row, move.start.col, move.target.row, move.target.col);
+            }
+        } catch (error) {
+            console.error("Ошибка при ходе бота:", error);
+        } finally {
+            this.isBotThinking = false;
+            this.updateStatus();
         }
     }
 
@@ -188,6 +233,11 @@ export default class Game {
      * Обновление статуса игры
      */
     updateStatus() {
+        if (this.isBotThinking) {
+            this.statusElement.textContent = "Бот думает...";
+            this.statusElement.style.color = "#f39c12";
+            return;
+        }
         this.statusElement.textContent = this.currentPlayer === 'white' ? 'Белые' : 'Черные';
         this.statusElement.style.color = this.currentPlayer === 'white' ? '#2c3e50' : '#e74c3c';
     }
@@ -217,7 +267,13 @@ export default class Game {
         this.selectedCell = null;
         this.possibleMoves = [];
         this.moveHistory = [];
+        this.isBotThinking = false;
         this.renderBoard();
         this.updateHistoryUI();
+        
+        // Если бот играет за белых (на будущее) или если нужно запустить бота сразу
+        if (this.gameMode === 'pve' && this.currentPlayer === this.bot.color) {
+            this.makeBotMove();
+        }
     }
 }

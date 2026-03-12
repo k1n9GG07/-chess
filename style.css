@@ -76,6 +76,28 @@ body {
     color: var(--accent-color);
 }
 
+.game__controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.game__mode-label {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.game__select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
 .game__button {
     padding: 10px 20px;
     background-color: var(--accent-color);

@@ -15,7 +15,15 @@
         <div class="game">
             <div class="game__info">
                 <p class="game__status">Ход: <span id="current-player" class="game__status-player">Белые</span></p>
-                <button id="reset-button" class="game__button">Начать заново</button>
+                <div class="game__controls">
+                    <label class="game__mode-label">Режим:
+                        <select id="game-mode" class="game__select">
+                            <option value="pvp">Игрок vs Игрок</option>
+                            <option value="pve" selected>Игрок vs Бот</option>
+                        </select>
+                    </label>
+                    <button id="reset-button" class="game__button">Начать заново</button>
+                </div>
             </div>
             
             <div id="board" class="chess-board">
