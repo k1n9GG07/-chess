@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шахматы - Проект</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page">
+    <header class="header">
+        <h1 class="header__title">Шахматы</h1>
+    </header>
+
+    <main class="main">
+        <div class="game">
+            <div class="game__info">
+                <p class="game__status">Ход: <span id="current-player" class="game__status-player">Белые</span></p>
+                <button id="reset-button" class="game__button">Начать заново</button>
+            </div>
+            
+            <div id="board" class="chess-board">
+                <!-- Клетки шахматной доски будут созданы динамически в JS -->
+            </div>
+
+            <div class="game__log">
+                <h2 class="game__log-title">История ходов</h2>
+                <ul id="move-history" class="game__log-list"></ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p class="footer__text">Проект по шахматам &copy; 2024</p>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
